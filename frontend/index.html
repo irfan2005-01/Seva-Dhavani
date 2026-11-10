@@ -1,0 +1,370 @@
+﻿<!doctype html>
+<html lang="kn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#075e54">
+  <title>ಸೇವಾ ಧ್ವನಿ | Seva Dhwani</title>
+  <style>
+    :root { color-scheme: light; --green:#075e54; --dark:#12332f; --cream:#f5f7f2; --line:#cbd8d2; --red:#b42318; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--cream); color:var(--dark); font:18px/1.5 system-ui,"Noto Sans Kannada","Nirmala UI",sans-serif; }
+    header { background:var(--green); color:white; padding:20px 18px; }
+    .top { max-width:760px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin:0; font-size:1.45rem; line-height:1.3; }
+    header p { margin:4px 0 0; font-size:.95rem; opacity:.92; }
+    main { max-width:760px; padding:18px; margin:auto; }
+    .card { background:white; border:1px solid var(--line); border-radius:18px; padding:20px; margin:0 0 18px; box-shadow:0 3px 14px #12332f0d; }
+    h2 { margin:0 0 14px; font-size:1.25rem; }
+    label { display:block; font-weight:700; margin:14px 0 6px; }
+    textarea,input,select { width:100%; border:2px solid #8aa49a; border-radius:12px; min-height:54px; padding:12px 14px; font:inherit; color:var(--dark); background:white; }
+    textarea { min-height:120px; resize:vertical; }
+    button { min-height:58px; border:0; border-radius:14px; padding:12px 18px; font-size:1.05rem; font-weight:700; font-family:inherit; cursor:pointer; }
+    button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:4px solid #f1b93b; outline-offset:2px; }
+    button:disabled { opacity:.6; cursor:wait; }
+    .primary { width:100%; background:var(--green); color:white; margin-top:16px; }
+    .mic { background:#e0f0e9; color:var(--green); width:100%; border:2px solid var(--green); }
+    .mic.recording { background:#ffebe8; color:var(--red); border-color:var(--red); }
+    .toggle { color:white; background:#ffffff24; border:1px solid #ffffffa6; min-width:90px; }
+    .small { min-height:46px; font-size:.94rem; }
+    .hint,.message { font-size:.92rem; color:#465c55; margin:9px 0 0; }
+    .error { color:var(--red); font-weight:700; }
+    .result { border-left:5px solid var(--green); background:#edf6f1; border-radius:10px; padding:15px; margin-top:16px; }
+    .result-id { font-size:clamp(1.5rem,7vw,2.1rem); font-weight:800; word-break:break-word; letter-spacing:.03em; }
+    .hidden { display:none !important; }
+    .emergency { position:fixed; z-index:5; inset:0; background:#991b1b; color:white; padding:24px; display:grid; place-items:center; text-align:center; }
+    .emergency-box { max-width:620px; }
+    .emergency h2 { font-size:clamp(2rem,8vw,3.6rem); }
+    .emergency p { font-size:clamp(1.25rem,5vw,1.8rem); font-weight:700; }
+    .emergency button { background:white; color:#7f1d1d; width:min(100%,320px); }
+    footer { text-align:center; padding:0 16px 28px; font-size:.88rem; color:#52665e; }
+    @media (min-width:600px) { main { padding-top:26px; } .card { padding:24px; } }
+  </style>
+<style>
+  .channel-nav { max-width:760px; margin:0 auto 16px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .channel-nav a { min-height:62px; display:flex; align-items:center; justify-content:center; text-align:center; padding:12px; border:2px solid #075e54; border-radius:14px; background:#fff; color:#075e54; text-decoration:none; font-weight:800; font-size:1rem; }
+  .channel-nav a:focus-visible { outline:4px solid #f1b93b; outline-offset:2px; }
+  @media(max-width:440px){.channel-nav{grid-template-columns:1fr}.channel-nav a{min-height:56px}}
+</style>
+</head>
+<body>
+  <header>
+    <div class="top">
+      <div><h1 id="brand">Seva Dhwani (ಸೇವಾ ಧ್ವನಿ)</h1><p id="subtitle">ಸರ್ಕಾರಿ ಆಸ್ಪತ್ರೆಯ ಸೇವಾ ಸಮಸ್ಯೆ ತಿಳಿಸಿ</p></div>
+      <button id="languageToggle" class="toggle small" type="button" aria-label="Switch language">English</button>
+    </div>
+  </header>
+  <main>
+    <nav class="channel-nav" aria-label="Complaint channels">
+      <a id="navVoice" href="/">🎙️ ಧ್ವನಿ ದೂರು</a>
+      <a id="navPhone" href="/ivr">☎️ ಫೋನ್ / IVR</a>
+      <a id="navAssisted" href="/assisted">🤝 ಸಹಾಯದೊಂದಿಗೆ</a>
+      <a id="navStatus" href="#statusHeading">🔎 ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ</a>
+    </nav>
+    <section class="card" aria-labelledby="reportHeading">
+      <h2 id="reportHeading">ದೂರು ದಾಖಲಿಸಿ</h2>
+      <button id="micButton" type="button" class="mic" aria-label="Start voice recording">🎙️ <span id="micLabel">ಮಾತನಾಡಲು ಒತ್ತಿರಿ</span></button>
+      <p id="recordingCountdown" class="hint hidden" aria-live="polite"></p>
+      <p id="voiceHelp" class="hint">ರೆಕಾರ್ಡಿಂಗ್ ಗರಿಷ್ಠ 25 ಸೆಕೆಂಡು. ಕಳುಹಿಸುವ ಮೊದಲು ಮಾತನ್ನು ತಿದ್ದಬಹುದು.</p>
+      <label for="description" id="descriptionLabel">ಸಮಸ್ಯೆಯನ್ನು ಬರೆಯಿರಿ ಅಥವಾ ಮಾತಾಡಿ</label>
+      <textarea id="description" maxlength="5000" autocomplete="off"></textarea>
+      <label for="hospital" id="hospitalLabel">ಆಸ್ಪತ್ರೆ ಆಯ್ಕೆಮಾಡಿ</label>
+      <select id="hospital"><option value="">ಆಸ್ಪತ್ರೆಗಳು ಲೋಡ್ ಆಗುತ್ತಿವೆ…</option></select>
+      <label for="phone" id="phoneLabel">ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)</label>
+      <input id="phone" type="tel" inputmode="tel" maxlength="30" autocomplete="tel">
+      <button id="submitButton" class="primary" type="button">ದೂರು ಸಲ್ಲಿಸಿ</button>
+      <p id="formMessage" class="message" role="status" aria-live="polite"></p>
+      <div id="submissionResult" class="result hidden" aria-live="polite">
+        <div id="resultText">ದೂರು ಸಂಖ್ಯೆ</div>
+        <div id="complaintId" class="result-id"></div>
+        <div id="acknowledgement"></div>
+      <button id="repeatSpeech" type="button" class="small">🔊 ಕೇಳಿ</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="statusHeading">
+      <h2 id="statusHeading">ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ</h2>
+      <label id="statusIdLabel" for="statusId">ದೂರು ಸಂಖ್ಯೆ</label>
+      <input id="statusId" type="text" placeholder="SD-2026-00001" autocomplete="off">
+      <button id="statusButton" class="primary" type="button">ಸ್ಥಿತಿ ನೋಡಿ</button>
+      <div id="statusResult" class="result hidden" aria-live="polite"></div>
+      <p id="statusMessage" class="message" role="status" aria-live="polite"></p>
+    </section>
+    <p id="nonEmergency" class="hint">ಇದು ತುರ್ತು ಸೇವೆಯಲ್ಲ. ತುರ್ತು ಪರಿಸ್ಥಿತಿಯಲ್ಲಿ ಸಿಬ್ಬಂದಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ 108ಕ್ಕೆ ಕರೆ ಮಾಡಿ.</p>
+  </main>
+  <footer>ಸೇವಾ ಧ್ವನಿ · ಕರ್ನಾಟಕ ಸರ್ಕಾರಿ ಆಸ್ಪತ್ರೆಗಳ ಸೇವಾ ದೂರುಗಳು<p id="channelEmergency">Non-emergency grievances only. In an emergency contact hospital staff or call 108.</p></footer>
+
+  <div id="emergencyNotice" class="emergency hidden" role="alertdialog" aria-modal="true" aria-labelledby="emergencyHeading">
+    <div class="emergency-box">
+      <h2 id="emergencyHeading">ತುರ್ತು ಪರಿಸ್ಥಿತಿ</h2>
+      <p>ತಕ್ಷಣ ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ 108ಕ್ಕೆ ಕರೆ ಮಾಡಿ</p>
+      <hr>
+      <p>Contact hospital staff or call 108 immediately</p>
+      <button id="dismissEmergency" type="button">ಸರಿ / OK</button>
+    </div>
+  </div>
+
+  <script>
+    const words = {
+      kn: { subtitle:"ಸರ್ಕಾರಿ ಆಸ್ಪತ್ರೆಯ ಸೇವಾ ಸಮಸ್ಯೆ ತಿಳಿಸಿ", report:"ಸೇವಾ ಸಮಸ್ಯೆ ವರದಿ ಮಾಡಿ", mic:"ರೆಕಾರ್ಡಿಂಗ್ ಪ್ರಾರಂಭಿಸಿ", rec:"ರೆಕಾರ್ಡಿಂಗ್ ನಡೆಯುತ್ತಿದೆ… ನಿಲ್ಲಿಸಲು ಒತ್ತಿರಿ", voiceHelp:"25 ಸೆಕೆಂಡುಗಳವರೆಗೆ ಮಾತನಾಡಿ. ಮುಗಿಸಲು ಮೈಕ್ ಮತ್ತೆ ಒತ್ತಿರಿ. ಕಳುಹಿಸುವ ಮೊದಲು ಪಠ್ಯವನ್ನು ತಿದ್ದಬಹುದು.", description:"ಸೇವಾ ಸಮಸ್ಯೆಯನ್ನು ವಿವರಿಸಿ", hospital:"ಆಸ್ಪತ್ರೆ ಆಯ್ಕೆಮಾಡಿ", phone:"ಫೋನ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)", submit:"ದೂರು ಸಲ್ಲಿಸಿ", id:"ದೂರು ಸಂಖ್ಯೆ", acknowledgement:"ನಿಮ್ಮ ದೂರು ನೋಂದಾಯಿಸಿ ಸಂಬಂಧಿತ ಅಧಿಕಾರಿಗೆ ನೀಡಲಾಗಿದೆ.", statusHeading:"ದೂರಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ", statusCheck:"ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ", statusLabel:"ದೂರು ಸಂಖ್ಯೆ", load:"ಆಸ್ಪತ್ರೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…", choose:"ಆಸ್ಪತ್ರೆ ಆಯ್ಕೆಮಾಡಿ", emergency:"ತಕ್ಷಣ ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ 108ಕ್ಕೆ ಕರೆ ಮಾಡಿ.", wait:"ದಯವಿಟ್ಟು ಕಾಯಿರಿ…", micError:"ಮೈಕ್ರೋಫೋನ್ ಅನುಮತಿಸಿ ಅಥವಾ ಸಮಸ್ಯೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ.", transcribeFallback:"ಧ್ವನಿಯನ್ನು ಗುರುತಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಸಮಸ್ಯೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ.", submitted:"ದೂರು ನೋಂದಾಯಿಸಲಾಗಿದೆ.", statusError:"ದೂರು ಸಂಖ್ಯೆ ಸಿಗಲಿಲ್ಲ. ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.", speechUnavailable:"ಕನ್ನಡ ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ. ದೂರು ಸಂಖ್ಯೆ ಪರದೆಯಲ್ಲಿದೆ. ಧ್ವನಿ ಲಭ್ಯವಾದಾಗ ಮತ್ತೆ ಕೇಳಿ ಒತ್ತಿರಿ.", listen:"🔊 ಮತ್ತೆ ಕೇಳಿ", statusSpeak:"ನಿಮ್ಮ ದೂರು {id}. ಸ್ಥಿತಿ: {status}. ವರ್ಗ: {category}.", statusNames:{Assigned:"ನಿಯೋಜಿಸಲಾಗಿದೆ", "In Progress":"ಕೆಲಸ ಪ್ರಗತಿಯಲ್ಲಿದೆ", Resolved:"ಪರಿಹರಿಸಲಾಗಿದೆ", Closed:"ಮುಚ್ಚಲಾಗಿದೆ", Registered:"ದಾಖಲಾಗಿದೆ"}, nonEmergency:"ಇದು ತುರ್ತು ಸೇವೆಯಲ್ಲ. ತುರ್ತು ಪರಿಸ್ಥಿತಿಯಲ್ಲಿ ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ 108ಕ್ಕೆ ಕರೆ ಮಾಡಿ." },
+      en: { subtitle:"Report a service issue at a government hospital", report:"Report a service issue", mic:"Start recording", rec:"Recording… tap to stop", voiceHelp:"Speak for up to 25 seconds. Tap the mic again to finish. You can edit the transcript before submitting.", description:"Describe the service issue", hospital:"Select a hospital", phone:"Phone number (optional)", submit:"Submit complaint", id:"Complaint ID", acknowledgement:"Your complaint has been registered and assigned.", statusHeading:"Check complaint status", statusCheck:"Check status", statusLabel:"Complaint ID", load:"Loading hospitals…", choose:"Select a hospital", emergency:"Contact hospital staff or call 108 immediately.", wait:"Please wait…", micError:"Allow microphone access, or type the issue instead.", transcribeFallback:"We couldn't recognize the recording. Please type the issue.", submitted:"Your complaint has been registered.", statusError:"We couldn't find that complaint ID. Check it and try again.", speechUnavailable:"No Kannada voice is available in this browser. Your complaint ID is shown above. Tap Listen to try again.", listen:"🔊 Listen", statusSpeak:"Your complaint {id}. Status: {status}. Category: {category}.", statusNames:{Assigned:"Assigned", "In Progress":"In progress", Resolved:"Resolved", Closed:"Closed", Registered:"Registered"}, nonEmergency:"This service is for non-emergency issues. In an emergency, contact hospital staff or call 108." }
+    };
+    words.kn.stopListen = "⏹ Stop";
+    words.en.stopListen = "⏹ Stop";
+    let language = "kn", detectedLanguage = "kn", activeRecorder = null, stream = null, chunks = [], browserTranscript = "", rawTranscript = "", latestSpeech = "", latestSpeechLanguage = "kn", recordSeconds = 0, recordInterval = null;
+    let speechRequestId = 0, currentAudio = null, currentAudioUrl = null, speechActive = false, lastListenClickAt = 0;
+    const $ = id => document.getElementById(id);
+    const setText = (id, value) => { $(id).textContent = value; };
+    function applyLanguage() {
+      const w = words[language];
+      document.documentElement.lang = language === "kn" ? "kn" : "en";
+      setText("subtitle", w.subtitle); setText("reportHeading", w.report); setText("micLabel", w.mic);
+      setText("voiceHelp", w.voiceHelp); setText("descriptionLabel", w.description); setText("hospitalLabel", w.hospital);
+      setText("phoneLabel", w.phone); setText("submitButton", w.submit); setText("resultText", w.id);
+      setText("acknowledgement", w.acknowledgement); setText("statusHeading", w.statusHeading);
+      setText("statusIdLabel", w.statusLabel); setText("statusButton", w.statusCheck); setText("nonEmergency", w.nonEmergency);
+      setText("navVoice", language === "kn" ? "🎙️ ಧ್ವನಿ ದೂರು" : "🎙️ Voice complaint");
+      setText("navPhone", language === "kn" ? "☎️ ಫೋನ್ / IVR" : "☎️ Phone / IVR simulator");
+      setText("navAssisted", language === "kn" ? "🤝 ಸಹಾಯದೊಂದಿಗೆ" : "🤝 Assisted mode");
+      setText("navStatus", language === "kn" ? "🔎 ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸಿ" : "🔎 Check status");
+      setText("channelEmergency", language === "kn" ? "ತುರ್ತು ಅಲ್ಲದ ದೂರುಗಳು ಮಾತ್ರ. ತುರ್ತು ಪರಿಸ್ಥಿತಿಯಲ್ಲಿ ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ 108ಕ್ಕೆ ಕರೆ ಮಾಡಿ." : "Non-emergency grievances only. In an emergency contact hospital staff or call 108.");
+      setText("languageToggle", language === "kn" ? "English" : "ಕನ್ನಡ");
+      renderSpeechButton();
+      if ($("hospital").options.length) { const first = $("hospital").options[0]; if (!first.value) first.textContent = w.choose; }
+    }
+    function beginCountdown(seconds) {
+      window.clearInterval(recordInterval); recordSeconds = seconds;
+      const countdown = $("recordingCountdown"); countdown.classList.remove("hidden");
+      const updateCountdown = () => { countdown.textContent = language === "kn" ? `${recordSeconds} ಸೆಕೆಂಡು ಉಳಿದಿದೆ` : `${recordSeconds}s remaining`; };
+      updateCountdown();
+      recordInterval = window.setInterval(() => {
+        recordSeconds -= 1;
+        if (recordSeconds <= 0) { window.clearInterval(recordInterval); recordInterval = null; stopRecording(); }
+        else updateCountdown();
+      }, 1000);
+    }
+    function endCountdown() {
+      window.clearInterval(recordInterval); recordInterval = null;
+      $("recordingCountdown").classList.add("hidden");
+    }
+    $("languageToggle").addEventListener("click", () => { language = language === "kn" ? "en" : "kn"; applyLanguage(); });
+
+    async function loadHospitals() {
+      try {
+        const response = await fetch("/api/hospitals"); if (!response.ok) throw new Error();
+        const hospitals = await response.json(); const select = $("hospital"); select.replaceChildren(new Option(words[language].choose, ""));
+        hospitals.forEach(h => {
+          const name = (h.name || "").trim(), district = (h.district || "").trim();
+          if (!name) return;
+          select.add(new Option(district ? `${name} (${district})` : name, h.id));
+        });
+      } catch (_) { $("hospital").replaceChildren(new Option(words[language].load, "")); }
+    }
+    loadHospitals();
+
+    function startBrowserRecognition() {
+      browserTranscript = "";
+      const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!Recognition) return null;
+      try {
+        const recognition = new Recognition(); recognition.lang = language === "kn" ? "kn-IN" : "en-IN";
+        recognition.interimResults = false; recognition.continuous = false;
+        recognition.onresult = event => { browserTranscript = event.results?.[0]?.[0]?.transcript || ""; };
+        recognition.start(); return recognition;
+      } catch (_) { return null; }
+    }
+    async function beginRecording() {
+      const recognition = startBrowserRecognition();
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+        if (!recognition) { setText("formMessage", words[language].micError); $("formMessage").className = "message error"; return; }
+        setText("micLabel", words[language].rec); $("micButton").classList.add("recording"); activeRecorder = { recognitionOnly:true, recognition };
+        beginCountdown(12); return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio:true }); chunks = [];
+        const options = {};
+        if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) options.mimeType = "audio/webm;codecs=opus";
+        else if (MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")) options.mimeType = "audio/ogg;codecs=opus";
+        const recorder = new MediaRecorder(stream, options); activeRecorder = { recorder, recognition };
+        recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+        recorder.onstop = uploadRecording; recorder.start();
+        setText("micLabel", words[language].rec); $("micButton").classList.add("recording");
+        beginCountdown(25);
+      } catch (_) { recognition?.stop(); setText("formMessage", words[language].micError); $("formMessage").className = "message error"; }
+    }
+    function stopRecording() {
+      if (!activeRecorder) return;
+      const current = activeRecorder; activeRecorder = null;
+      endCountdown();
+      $("micButton").classList.remove("recording"); setText("micLabel", words[language].mic);
+      if (current.recorder?.state === "recording") current.recorder.stop();
+      current.recognition?.stop();
+      if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
+      if (current.recognitionOnly) window.setTimeout(() => { if (browserTranscript) $("description").value = browserTranscript; else setText("formMessage", words[language].transcribeFallback); }, 600);
+    }
+    $("micButton").addEventListener("click", () => activeRecorder ? stopRecording() : beginRecording());
+    async function uploadRecording() {
+      const blob = new Blob(chunks, { type: chunks[0]?.type || "audio/webm" });
+      const fallback = browserTranscript;
+      if (!blob.size) { if (fallback) $("description").value = fallback; return; }
+      setText("formMessage", words[language].wait); $("formMessage").className = "message";
+      const ext = blob.type.includes("ogg") ? "ogg" : blob.type.includes("mp4") ? "mp4" : "webm";
+      const form = new FormData(); form.append("file", blob, `recording.${ext}`);
+      try {
+        const response = await fetch("/api/voice/transcribe", { method:"POST", body:form });
+        const data = await response.json(); if (!response.ok) throw new Error(data.detail || "transcription failed");
+        rawTranscript = data.transcript; $("description").value = data.transcript; if (["kn","en","hi"].includes(data.language)) detectedLanguage = data.language;
+        setText("formMessage", "");
+      } catch (_) {
+        if (fallback) { $("description").value = fallback; setText("formMessage", words[language].transcribeFallback); }
+        else { setText("formMessage", words[language].transcribeFallback); $("formMessage").className = "message error"; }
+      }
+    }
+
+    function renderSpeechButton() {
+      const button = $("repeatSpeech");
+      button.textContent = speechActive ? words[language].stopListen : words[language].listen;
+      button.setAttribute("aria-label", speechActive ? words[language].stopListen : words[language].listen);
+    }
+    function releaseCurrentAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        try { currentAudio.currentTime = 0; } catch (_) {}
+        currentAudio.removeAttribute("src");
+        currentAudio.load();
+        currentAudio = null;
+      }
+      if (currentAudioUrl) { URL.revokeObjectURL(currentAudioUrl); currentAudioUrl = null; }
+    }
+    function clearCurrentSpeech() {
+      releaseCurrentAudio();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      speechActive = false;
+      renderSpeechButton();
+    }
+    function cancelCurrentSpeech() {
+      speechRequestId += 1;
+      clearCurrentSpeech();
+    }
+    function finishSpeech(requestId, audio = null) {
+      if (requestId !== speechRequestId) return;
+      if (audio && currentAudio !== audio) return;
+      clearCurrentSpeech();
+    }
+    async function speak(text, lang = "kn") {
+      if (!text) return;
+      clearCurrentSpeech();
+      const requestId = ++speechRequestId;
+      latestSpeech = text; latestSpeechLanguage = lang;
+      speechActive = true; renderSpeechButton();
+
+      let responseData;
+      try {
+        const response = await fetch("/api/voice/speak", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ text, language:lang }),
+        });
+        if (!response.ok) throw new Error("Sarvam speech request failed");
+        responseData = await response.json();
+        if (!responseData.audio_base64) throw new Error("Sarvam returned no audio");
+      } catch (_) {
+        if (requestId !== speechRequestId) return;
+        clearCurrentSpeech();
+        fallbackSpeech(text, lang, requestId);
+        return;
+      }
+
+      if (requestId !== speechRequestId) return;
+      try {
+        const binary = atob(responseData.audio_base64);
+        const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+        currentAudioUrl = URL.createObjectURL(new Blob([bytes], { type:responseData.content_type || "audio/wav" }));
+        if (requestId !== speechRequestId) { URL.revokeObjectURL(currentAudioUrl); currentAudioUrl = null; return; }
+        const audio = new Audio(currentAudioUrl);
+        currentAudio = audio;
+        audio.onended = () => finishSpeech(requestId, audio);
+        audio.onerror = () => finishSpeech(requestId, audio);
+        await audio.play();
+      } catch (_) {
+        if (requestId !== speechRequestId) return;
+        finishSpeech(requestId, currentAudio);
+        setText("formMessage", language === "kn" ? "ಧ್ವನಿಯನ್ನು ಪ್ಲೇ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಕೇಳಲು ಒತ್ತಿರಿ." : "Audio could not be played. Tap Listen to try again.");
+        $("formMessage").className = "message error";
+      }
+    }
+    function fallbackSpeech(text, lang, requestId) {
+      if (requestId !== speechRequestId) return;
+      const messageTarget = $("submissionResult").classList.contains("hidden") ? $("statusMessage") : $("formMessage");
+      const notice = words[language].speechUnavailable || words.en.speechUnavailable;
+      if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        finishSpeech(requestId); setText(messageTarget.id, notice); messageTarget.className = "message error"; return;
+      }
+      const voices = speechSynthesis.getVoices();
+      const locale = lang === "kn" ? "kn-IN" : lang === "hi" ? "hi-IN" : "en-IN";
+      const matchingVoice = voices.find(voice => voice.lang.toLowerCase().startsWith(locale.slice(0, 2)));
+      if (lang === "kn" && !matchingVoice) {
+        finishSpeech(requestId); setText(messageTarget.id, notice); messageTarget.className = "message error"; return;
+      }
+      const utterance = new SpeechSynthesisUtterance(text); utterance.lang = locale;
+      if (matchingVoice) utterance.voice = matchingVoice;
+      speechActive = true; renderSpeechButton();
+      utterance.onstart = () => { if (requestId === speechRequestId) { speechActive = true; renderSpeechButton(); } };
+      utterance.onend = () => finishSpeech(requestId);
+      utterance.onerror = () => {
+        if (requestId !== speechRequestId) return;
+        finishSpeech(requestId);
+        setText(messageTarget.id, notice); messageTarget.className = "message error";
+      };
+      speechSynthesis.speak(utterance);
+    }
+    $("repeatSpeech").addEventListener("click", () => {
+      const now = Date.now();
+      if (speechActive) { lastListenClickAt = now; cancelCurrentSpeech(); return; }
+      if (now - lastListenClickAt < 700) return;
+      lastListenClickAt = now;
+      speak(latestSpeech, latestSpeechLanguage);
+    });
+    function showEmergency() { $("emergencyNotice").classList.remove("hidden"); $("dismissEmergency").focus(); }
+    $("dismissEmergency").addEventListener("click", () => $("emergencyNotice").classList.add("hidden"));
+
+    $("submitButton").addEventListener("click", async () => {
+      const description = $("description").value.trim(), hospital_id = Number($("hospital").value);
+      const message = $("formMessage"); message.className = "message";
+      if (!description || !hospital_id) { setText("formMessage", language === "kn" ? "ಸಮಸ್ಯೆ ಮತ್ತು ಆಸ್ಪತ್ರೆ ನಮೂದಿಸಿ." : "Enter the issue and choose a hospital."); message.className = "message error"; return; }
+      $("submitButton").disabled = true; setText("formMessage", words[language].wait);
+      try {
+        const response = await fetch("/api/complaints", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ description, transcript_original:rawTranscript || description, language:rawTranscript ? detectedLanguage : language, hospital_id, channel:"voice", complainant_phone:$("phone").value.trim() || null }) });
+        const data = await response.json(); if (!response.ok) throw new Error(data.detail || "Submit failed");
+        if (data.emergency) { showEmergency(); setText("formMessage", words[language].emergency); return; }
+        $("submissionResult").classList.remove("hidden"); setText("complaintId", data.complaint_id); setText("acknowledgement", data.message || words[language].acknowledgement);
+        setText("formMessage", words[language].submitted);
+        const spoken = `${data.message || words.kn.acknowledgement} ${words.kn.id} ${data.complaint_id}.`;
+        speak(spoken, "kn");
+      } catch (error) { setText("formMessage", error.message || words[language].statusError); message.className = "message error"; }
+      finally { $("submitButton").disabled = false; }
+    });
+
+    $("statusButton").addEventListener("click", async () => {
+      const id = $("statusId").value.trim(), target = $("statusMessage"); $("statusResult").classList.add("hidden");
+      if (!id) { setText("statusMessage", words[language].statusError); target.className = "message error"; return; }
+      target.className = "message"; setText("statusMessage", words[language].wait);
+      try {
+        const response = await fetch(`/api/complaints/${encodeURIComponent(id)}`); const data = await response.json(); if (!response.ok) throw new Error();
+        const status = words[language].statusNames[data.status] || data.status;
+        const result = `${data.complaint_id} · ${status} · ${data.category} · ${data.hospital}`;
+        setText("statusResult", result); $("statusResult").classList.remove("hidden"); setText("statusMessage", "");
+        const spoken = words[language].statusSpeak.replace("{id}", data.complaint_id).replace("{status}", status).replace("{category}", data.category);
+        speak(spoken, language);
+      } catch (_) { setText("statusMessage", words[language].statusError); target.className = "message error"; }
+    });
+    applyLanguage();
+  </script>
+<script>
+// Network and provider status is informational; all forms remain usable with typed input.
+(function(){const host=document.createElement('div');host.id='runtimeStatus';host.style.cssText='position:sticky;top:0;z-index:9999;display:flex;gap:8px;justify-content:center;font:600 14px system-ui';document.body.prepend(host);const typed=document.createElement('span');typed.textContent='Offline/typed mode · typed input available';typed.style.cssText='background:#eef3f8;padding:6px 12px;border-radius:8px';host.append(typed);fetch('/api/demo/status').then(r=>r.ok?r.json():null).then(d=>{if(d?.demo_mode){const n=document.createElement('span');n.textContent='DEMO MODE';n.style.cssText='background:#fce8a6;padding:6px 12px;border-radius:8px';host.prepend(n)}}).catch(()=>{});})();
+</script>
+</body>
+</html>
+
+

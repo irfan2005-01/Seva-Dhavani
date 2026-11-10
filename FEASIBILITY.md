@@ -1,0 +1,12 @@
+# One-hospital pilot feasibility
+
+Pilot at one district hospital with a small set of service categories and a named Medical Superintendent as sponsor. Citizens can use the web voice page or a helpdesk; a helpdesk operator or ASHA worker files an assisted complaint when a citizen has no smartphone. The operator records only the service issue and their operator code. A duty officer checks the dashboard queue, adds a brief action note, and updates progress. The Medical Superintendent reviews overdue escalations and routes unresolved items to the District Health Officer under agreed service-level targets.
+
+The existing provider boundaries support later integration: an IVR adapter can replace the simulated keypad state machine with a telephony webhook, and a missed-call provider can create callback requests. A notification adapter can send SMS while preserving the current outbox record and idempotency key. Provider credentials belong in server environment settings. Before connecting providers, agree on consent wording, delivery receipts, retry policy, and who monitors failures.
+
+Privacy is deliberately limited: the complaint form does not ask for patient names or medical details. Phone numbers are optional, used for updates, excluded from public status responses, and masked in callback views. The current prototype has no automated retention deletion; a pilot must set a retention period with the hospital, delete or anonymize old records, restrict officer keys, protect backups, and log access. Use HTTPS and an approved hosting location for real use.
+
+Costs are driven by speech-to-text and speech generation usage, outgoing SMS segments, hosting/database/backups, and operational support. The demo uses Sarvam only when configured; browser speech is the fallback. Obtain current provider quotes and measure usage before budgeting; no exact per-complaint price is assumed here. Hosting and SMS costs are also provider- and volume-dependent.
+
+The prototype simulates IVR calls, missed-call callbacks, and SMS delivery in a local outbox; it does not call citizens or send real messages. Hospital records, authority mappings, complaint intake, status workflow, reminders, escalation, and dashboard are prototype software and require operational validation. The sample records and phone numbers are fake. A safe pilot should use one hospital, staff training, Kannada review, emergency-path drills, security review, a written SLA/escalation roster, and a short evaluation before expansion.
+
