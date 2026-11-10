@@ -279,7 +279,8 @@ def test_stats_counts_sla_and_recurring_issue_threshold(client: TestClient):
     }]
 
 
-def test_dashboard_is_served_locally_without_external_assets(client: TestClient):
+def test_dashboard_is_served_locally_without_external_assets(client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(config, "DEMO_MODE", True)
     response = client.get("/dashboard")
     assert response.status_code == 200
     assert "dashboard.html" not in response.text
@@ -290,6 +291,8 @@ def test_dashboard_is_served_locally_without_external_assets(client: TestClient)
         page = client.get(path)
         assert page.status_code == 200
         assert marker in page.text
+    monkeypatch.setattr(config, "DEMO_MODE", False)
+    assert client.get("/sms").status_code == 404
 
 
 def _ivr_input(client: TestClient, session_id: str, **payload) -> dict:
@@ -401,7 +404,8 @@ def test_assisted_registration_requires_and_logs_operator_reference(client: Test
     assert missing.status_code == 422
 
 
-def test_ivr_sms_offer_queues_number_and_phone_inbox_reads_it(client: TestClient):
+def test_ivr_sms_offer_queues_number_and_phone_inbox_reads_it(client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(config, "DEMO_MODE", True)
     start = client.post("/api/ivr/session").json()
     sid = start["session_id"]
     _ivr_input(client, sid, digit="1")
@@ -417,6 +421,9 @@ def test_ivr_sms_offer_queues_number_and_phone_inbox_reads_it(client: TestClient
     assert inbox.status_code == 200
     assert any(item["complaint_id"] == created["complaint_id"] and created["complaint_id"] in item["message"]
                for item in inbox.json()["messages"])
+    monkeypatch.setattr(config, "DEMO_MODE", False)
+    assert client.get("/sms").status_code == 404
+    assert client.post("/api/sms/inbox", json={"phone": "9876543210"}).status_code == 404
 
 
 def test_speak_error_returns_machine_readable_reason(monkeypatch):

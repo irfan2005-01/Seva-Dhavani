@@ -26,6 +26,42 @@ CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
     ),
 }
 
+# Short, category-specific stems catch common inflections and changed word
+# order in typed or transcribed speech. Keep generic words out where they could
+# pull an issue into a neighboring category (for example, "clean" vs water).
+CATEGORY_STEMS: dict[str, tuple[str, ...]] = {
+    "Doctor/Staff Unavailable": (
+        "doctor", "physician", "nurse", "staff",
+        "ವೈದ್ಯ", "ಡಾಕ್ಟರ್", "ನರ್ಸ್", "ಸಿಬ್ಬಂದಿ",
+        "डॉक्टर", "चिकित्सक", "नर्स", "स्टाफ", "कर्मचारी",
+    ),
+    "Medicine Unavailable": (
+        "medicine", "medication", "pharmacy", "tablet", "pill", "injection",
+        "ಔಷಧ", "ಔಷಧಿ", "ಮಾತ್ರೆ", "ಇಂಜೆಕ್ಷನ್",
+        "दवा", "दवाई", "गोली", "इंजेक्शन", "औषधि",
+    ),
+    "Cleanliness & Hygiene": (
+        "unclean", "dirty", "filthy", "cleanliness", "hygiene", "garbage", "litter",
+        "ಸ್ವಚ್ಛ", "ಗಲೀಜು", "ಕೊಳಕು", "ಕಸ",
+        "सफाई", "गंदगी", "गंदा", "कूड़ा", "कचरा",
+    ),
+    "Drinking Water & Sanitation": (
+        "drinking water", "water supply", "no water", "water", "sanitation", "toilet", "washroom", "tap water",
+        "ನೀರು", "ಶೌಚಾಲಯ", "ಟಾಯ್ಲೆಟ್",
+        "पेयजल", "पानी", "शौचालय", "टॉयलेट", "नल",
+    ),
+    "Beds & Facilities": (
+        "bed", "mattress", "bedding",
+        "ಹಾಸಿಗೆ", "ಬೆಡ್",
+        "बिस्तर", "बेड", "पलंग",
+    ),
+    "Infrastructure Maintenance": (
+        "repair", "broken", "maintenance", "electricity", "leak", "leaking", "damaged",
+        "ದುರಸ್ತಿ", "ಕೆಟ್ಟು", "ಸೋರು", "ವಿದ್ಯುತ್",
+        "मरम्मत", "खराब", "टूट", "रिसाव", "बिजली",
+    ),
+}
+
 EMERGENCY_KEYWORDS = (
     "emergency", "accident", "ambulance", "heart attack", "bleeding", "unconscious",
     "\u0ca4\u0cc1\u0cb0\u0ccd\u0ca4\u0cc1", "\u0c85\u0caa\u0c98\u0cbe\u0ca4", "\u0c86\u0c82\u0cac\u0ccd\u0caf\u0cc1\u0cb2\u0cc6\u0ca8\u0ccd\u0cb8\u0ccd", "\u0cb0\u0c95\u0ccd\u0ca4\u0cb8\u0ccd\u0cb0\u0cbe\u0cb5", "\u0cb9\u0cc3\u0ca6\u0caf\u0cbe\u0c98\u0cbe\u0ca4",
@@ -43,7 +79,8 @@ def categorize(description: str) -> str:
     for category in CATEGORIES:
         if category == "Other":
             continue
-        if any(keyword.casefold() in lowered for keyword in CATEGORY_KEYWORDS.get(category, ())):
+        keywords = CATEGORY_KEYWORDS.get(category, ()) + CATEGORY_STEMS.get(category, ())
+        if any(keyword.casefold() in lowered for keyword in keywords):
             return category
     return "Other"
 
